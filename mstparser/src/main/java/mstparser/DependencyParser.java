@@ -1,20 +1,20 @@
 package mstparser;
 
-import java.io.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.StringTokenizer;
-import gnu.trove.*;
-
-import mstparser.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 
 public class DependencyParser {
 
     public ParserOptions options;
 
-    private DependencyPipe pipe;
-    private DependencyDecoder decoder;
-    private Parameters params;
+    protected DependencyPipe pipe;
+    private final DependencyDecoder decoder;
+    protected Parameters params;
 
     Parameters getParams() {
 		return params;
@@ -26,19 +26,19 @@ public class DependencyParser {
 
 	// Set up arrays
 	params = new Parameters(pipe.dataAlphabet.size());
-	decoder = options.secondOrder ? 
+	decoder = options.secondOrder ?
 	    new DependencyDecoder2O(pipe) : new DependencyDecoder(pipe);
     }
 
-    public void train(int[] instanceLengths, String trainfile, File train_forest) 
+    public void train(int[] instanceLengths, String trainfile, File train_forest)
 	throws IOException {
-		
+
 	//System.out.print("About to train. ");
 	//System.out.print("Num Feats: " + pipe.dataAlphabet.size());
-		
+
 	int i = 0;
 	for(i = 0; i < options.numIters; i++) {
-			
+
 	    System.out.print(" Iteration "+i);
 	    //System.out.println("========================");
 	    //System.out.println("Iteration: " + i);
@@ -51,14 +51,14 @@ public class DependencyParser {
 
 	    long end = System.currentTimeMillis();
 	    //System.out.println("Training iter took: " + (end-start));
-	    System.out.println("|Time:"+(end-start)+"]");			
+	    System.out.println("|Time:"+(end-start)+"]");
 	}
 
 	params.averageParams(i*instanceLengths.length);
-		
+
     }
 
-    private void trainingIter(int[] instanceLengths, String trainfile, 
+    private void trainingIter(int[] instanceLengths, String trainfile,
 			      File train_forest, int iter) throws IOException {
 
 	int numUpd = 0;
@@ -93,40 +93,44 @@ public class DependencyParser {
 							     fvs_sibs,probs_sibs,
 							     nt_fvs,nt_probs,params);
 	    }
+        else {
+            inst = pipe.readInstance(in,length,fvs,probs,nt_fvs,nt_probs,params);
+        }
 
-	    else
-		inst = pipe.readInstance(in,length,fvs,probs,nt_fvs,nt_probs,params);
-
-	    double upd = (double)(options.numIters*numInstances - (numInstances*(iter-1)+(i+1)) + 1);
+	    double upd = options.numIters*numInstances - (numInstances*(iter-1)+(i+1)) + 1;
 	    int K = options.trainK;
 	    Object[][] d = null;
 	    if(options.decodeType.equals("proj")) {
-		if(options.secondOrder)
-		    d = ((DependencyDecoder2O)decoder).decodeProjective(inst,fvs,probs,
+		if(options.secondOrder) {
+            d = ((DependencyDecoder2O)decoder).decodeProjective(inst,fvs,probs,
 									fvs_trips,probs_trips,
 									fvs_sibs,probs_sibs,
 									nt_fvs,nt_probs,K);
-		else
-		    d = decoder.decodeProjective(inst,fvs,probs,nt_fvs,nt_probs,K);
+        }
+        else {
+            d = decoder.decodeProjective(inst,fvs,probs,nt_fvs,nt_probs,K);
+        }
 	    }
 	    if(options.decodeType.equals("non-proj")) {
-		if(options.secondOrder)
-		    d = ((DependencyDecoder2O)decoder).decodeNonProjective(inst,fvs,probs,
+		if(options.secondOrder) {
+            d = ((DependencyDecoder2O)decoder).decodeNonProjective(inst,fvs,probs,
 								       fvs_trips,probs_trips,
 								       fvs_sibs,probs_sibs,
 								       nt_fvs,nt_probs,K);
-		else
-		    d = decoder.decodeNonProjective(inst,fvs,probs,nt_fvs,nt_probs,K);
+        }
+        else {
+            d = decoder.decodeNonProjective(inst,fvs,probs,nt_fvs,nt_probs,K);
+        }
 	    }
 	    params.updateParamsMIRA(inst,d,upd);
 
 	}
 
-	//System.out.println("");	
+	//System.out.println("");
 	//System.out.println("  "+numInstances+" instances");
 
 	System.out.print(numInstances);
-		
+
 	in.close();
 
     }
@@ -150,7 +154,7 @@ public class DependencyParser {
 	in.close();
 	pipe.closeAlphabets();
     }
-    
+
     //////////////////////////////////////////////////////
     // Get Best Parses ///////////////////////////////////
     //////////////////////////////////////////////////////
@@ -158,10 +162,10 @@ public class DependencyParser {
 
 	String tFile = options.testfile;
 	String file = options.outfile;
-	
+
 	ConfidenceEstimator confEstimator = null;
 	if (options.confidenceEstimator != null){
-		confEstimator = 
+		confEstimator =
 			ConfidenceEstimator.resolveByName(options.confidenceEstimator,
 												this);
 		System.out.println("Applying confidence estimation: "+
@@ -184,7 +188,7 @@ public class DependencyParser {
 	    String[] posNoRoot = new String[formsNoRoot.length];
 	    String[] labels = new String[formsNoRoot.length];
 	    int[] heads = new int[formsNoRoot.length];
-			
+
 	    decode (instance,
 	    		options.testK,
 				params,
@@ -192,9 +196,9 @@ public class DependencyParser {
 				posNoRoot,
 				labels,
 				heads );
-	    
+
 	    if (confEstimator != null ) {
-	    	double[] confidenceScores = 
+	    	double[] confidenceScores =
 	    		confEstimator.estimateConfidence(instance);
 	    	pipe.outputInstance(new DependencyInstance(formsNoRoot, posNoRoot, labels, heads, confidenceScores));
 	    } else {
@@ -214,23 +218,23 @@ public class DependencyParser {
 	    instance = pipe.nextInstance();
 	}
 	pipe.close();
-		
+
 	long end = System.currentTimeMillis();
 	System.out.println("Took: " + (end-start));
 
     }
 
     //////////////////////////////////////////////////////
-    // Decode single instance 
+    // Decode single instance
     //////////////////////////////////////////////////////
     String[] decode (DependencyInstance instance,
 					int K,
 					Parameters params ) {
 
 		String[] forms = instance.forms;
-		
+
 		int length = forms.length;
-		
+
 		FeatureVector[][][] fvs = new FeatureVector[forms.length][forms.length][2];
 		double[][][] probs = new double[forms.length][forms.length][2];
 		FeatureVector[][][][] nt_fvs = new FeatureVector[forms.length][pipe.types.length][2][2];
@@ -239,38 +243,44 @@ public class DependencyParser {
 		double[][][] probs_trips = new double[length][length][length];
 		FeatureVector[][][] fvs_sibs = new FeatureVector[length][length][2];
 		double[][][] probs_sibs = new double[length][length][2];
-		if(options.secondOrder)
-			((DependencyPipe2O)pipe).fillFeatureVectors(instance,fvs,probs,
+		if(options.secondOrder) {
+            ((DependencyPipe2O)pipe).fillFeatureVectors(instance,fvs,probs,
 							    fvs_trips,probs_trips,
 							    fvs_sibs,probs_sibs,
 							    nt_fvs,nt_probs,params);
-		else
-			pipe.fillFeatureVectors(instance,fvs,probs,nt_fvs,nt_probs,params);
-		
+        }
+        else {
+            pipe.fillFeatureVectors(instance,fvs,probs,nt_fvs,nt_probs,params);
+        }
+
 		Object[][] d = null;
 		if(options.decodeType.equals("proj")) {
-		if(options.secondOrder)
-			d = ((DependencyDecoder2O)decoder).decodeProjective(instance,fvs,probs,
+		if(options.secondOrder) {
+            d = ((DependencyDecoder2O)decoder).decodeProjective(instance,fvs,probs,
 									fvs_trips,probs_trips,
 									fvs_sibs,probs_sibs,
 									nt_fvs,nt_probs,K);
-		else
-			d = decoder.decodeProjective(instance,fvs,probs,nt_fvs,nt_probs,K);
+        }
+        else {
+            d = decoder.decodeProjective(instance,fvs,probs,nt_fvs,nt_probs,K);
+        }
 		}
 		if(options.decodeType.equals("non-proj")) {
-		if(options.secondOrder)
-			d = ((DependencyDecoder2O)decoder).decodeNonProjective(instance,fvs,probs,
+		if(options.secondOrder) {
+            d = ((DependencyDecoder2O)decoder).decodeNonProjective(instance,fvs,probs,
 							       fvs_trips,probs_trips,
 							       fvs_sibs,probs_sibs,
 							       nt_fvs,nt_probs,K);
-		else
-			d = decoder.decodeNonProjective(instance,fvs,probs,nt_fvs,nt_probs,K);
+        }
+        else {
+            d = decoder.decodeNonProjective(instance,fvs,probs,nt_fvs,nt_probs,K);
+        }
 		}
-		
+
 		String[] res = ((String)d[0][1]).split(" ");
 		return res;
     }
-    
+
     public void decode (DependencyInstance instance,
     					int K,
     					Parameters params,
@@ -278,70 +288,70 @@ public class DependencyParser {
     					String[] posNoRoot,
     					String[] labels,
     					int[] heads ) {
-	
+
 	    String[] forms = instance.forms;
-	
+
 	    String[] res = decode(instance, K, params);
-	
+
 	    String[] pos = instance.cpostags;
-	
+
 	    for(int j = 0; j < forms.length-1; j++) {
 			formsNoRoot[j] = forms[j+1];
-			posNoRoot[j] = pos[j+1]; 
+			posNoRoot[j] = pos[j+1];
 			String[] trip = res[j].split("[\\|:]");
 			labels[j] = pipe.types[Integer.parseInt(trip[2])];
 			heads[j] = Integer.parseInt(trip[0]);
 	    }
 	}
-    
+
     public void decode (DependencyInstance instance,
 			int K,
 			Parameters params,
 			int[] heads ) {
-    	
+
 		String[] res = decode(instance, K, params);
-		
+
 		for(int j = 0; j <  instance.forms.length-1; j++) {
 			String[] trip = res[j].split("[\\|:]");
 			heads[j] = Integer.parseInt(trip[0]);
 		}
-	}    
-    
+	}
+
     /////////////////////////////////////////////////////
     // RUNNING THE PARSER
     ////////////////////////////////////////////////////
     public static void main (String[] args) throws FileNotFoundException, Exception
     {
-	
+
 	ParserOptions options = new ParserOptions(args);
 
 	if (options.train) {
-		
-	    DependencyPipe pipe = options.secondOrder ? 
+
+	    DependencyPipe pipe = options.secondOrder ?
 		new DependencyPipe2O (options) : new DependencyPipe (options);
 
-	    int[] instanceLengths = 
+	    int[] instanceLengths =
 		pipe.createInstances(options.trainfile,options.trainforest);
-		
+
 	    pipe.closeAlphabets();
-	    
+
 	    DependencyParser dp = new DependencyParser(pipe, options);
-	    
+
 	    int numFeats = pipe.dataAlphabet.size();
 	    int numTypes = pipe.typeAlphabet.size();
-	    System.out.print("Num Feats: " + numFeats);	
+	    System.out.print("Num Feats: " + numFeats);
 	    System.out.println(".\tNum Edge Labels: " + numTypes);
-	    
+
 	    dp.train(instanceLengths,options.trainfile,options.trainforest);
-	    
+
 	    System.out.print("Saving model...");
 	    dp.saveModel(options.modelName);
 	    System.out.print("done.");
-	    
+
 	}
-		
+
 	if (options.test) {
-	    DependencyPipe pipe = options.secondOrder ? 
+	    DependencyPipe pipe = options.secondOrder ?
 		new DependencyPipe2O (options) : new DependencyPipe (options);
 
 	    DependencyParser dp = new DependencyParser(pipe, options);
@@ -354,22 +364,22 @@ public class DependencyParser {
 
 	    dp.outputParses();
 	}
-		
+
 	System.out.println();
 
 	if (options.eval) {
 	    System.out.println("\nEVALUATION PERFORMANCE:");
-	    DependencyEvaluator.evaluate(options.goldfile, 
-					 options.outfile, 
+	    DependencyEvaluator.evaluate(options.goldfile,
+					 options.outfile,
 					 options.format,
 					 (options.confidenceEstimator != null));
 	}
-	
+
 	if (options.rankEdgesByConfidence) {
 	    System.out.println("\nRank edges by confidence:");
 	    EdgeRankerByConfidence edgeRanker = new EdgeRankerByConfidence();
-	    edgeRanker.rankEdgesByConfidence(options.goldfile, 
-					 options.outfile, 
+	    edgeRanker.rankEdgesByConfidence(options.goldfile,
+					 options.outfile,
 					 options.format);
 	}
     }
