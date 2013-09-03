@@ -34,6 +34,7 @@ public final class ParserOptions {
     public boolean train = false;
     public boolean eval = false;
     public boolean test = false;
+    public boolean rankEdgesByConfidence = false;
     public String modelName = "dep.model";
     public String lossType = "punc";
     public boolean createForest = true;
@@ -47,7 +48,7 @@ public final class ParserOptions {
     public boolean secondOrder = false;
     public boolean useRelationalFeatures = false;
     public boolean discourseMode = false;
-
+    public String confidenceEstimator = null;
 
     public ParserOptions (String[] args) {
 
@@ -104,7 +105,13 @@ public final class ParserOptions {
 	    }			
 	    if (pair[0].equals("discourse-mode")) {
 		discourseMode = pair[1].equals("true") ? true : false;
-	    }			
+	    }
+	    if (pair[0].equals("confidence-estimation")) {
+	    confidenceEstimator = pair[1];
+		}
+	    if (pair[0].equals("rankEdgesByConfidence")) {
+	    rankEdgesByConfidence = true;
+	    }	    
 	}
 
 

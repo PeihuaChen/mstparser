@@ -13,6 +13,8 @@
 package mstparser.io;
 
 import java.io.*;
+import java.text.DecimalFormat;
+
 import mstparser.DependencyInstance;
 
 /**
@@ -33,7 +35,11 @@ public class CONLLWriter extends DependencyWriter {
     }
 
     public void write(DependencyInstance instance) throws IOException {
-	
+    DecimalFormat df = null;
+    if (instance.confidenceScores != null){
+		df = new DecimalFormat();
+		df.setMaximumFractionDigits(3);
+	}
 	for (int i=0; i<instance.length(); i++) {
 	    writer.write(Integer.toString(i+1));                writer.write('\t');
 	    writer.write(instance.forms[i]);                    writer.write('\t');
@@ -45,6 +51,10 @@ public class CONLLWriter extends DependencyWriter {
 	    writer.write(Integer.toString(instance.heads[i]));  writer.write('\t');
 	    writer.write(instance.deprels[i]);                  writer.write('\t');
 	    writer.write("-\t-");
+	    if (instance.confidenceScores != null){
+	    	writer.write('\t');
+	    	writer.write(df.format(instance.confidenceScores[i]));
+	    }
 	    writer.newLine();
 	}
 	writer.newLine();

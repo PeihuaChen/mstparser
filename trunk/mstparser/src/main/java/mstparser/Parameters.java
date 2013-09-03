@@ -23,7 +23,11 @@ public class Parameters {
 	lossType = "punc";
     }
 
-    public void setLoss(String lt) {
+    public Parameters(double[] parameters) {
+    	this.parameters = parameters;
+	}
+
+	public void setLoss(String lt) {
 	lossType = lt;
     }
 

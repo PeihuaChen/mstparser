@@ -16,7 +16,11 @@ public class DependencyParser {
     private DependencyDecoder decoder;
     private Parameters params;
 
-    public DependencyParser(DependencyPipe pipe, ParserOptions options) {
+    Parameters getParams() {
+		return params;
+	}
+
+	public DependencyParser(DependencyPipe pipe, ParserOptions options) {
 	this.pipe=pipe;
 	this.options = options;
 
@@ -146,7 +150,7 @@ public class DependencyParser {
 	in.close();
 	pipe.closeAlphabets();
     }
-
+    
     //////////////////////////////////////////////////////
     // Get Best Parses ///////////////////////////////////
     //////////////////////////////////////////////////////
@@ -154,6 +158,15 @@ public class DependencyParser {
 
 	String tFile = options.testfile;
 	String file = options.outfile;
+	
+	ConfidenceEstimator confEstimator = null;
+	if (options.confidenceEstimator != null){
+		confEstimator = 
+			ConfidenceEstimator.resolveByName(options.confidenceEstimator,
+												this);
+		System.out.println("Applying confidence estimation: "+
+				options.confidenceEstimator);
+	}
 
 	long start = System.currentTimeMillis();
 
@@ -167,67 +180,26 @@ public class DependencyParser {
 	    cnt++;
 	    System.out.print(cnt+" ");
 	    String[] forms = instance.forms;
-			
-	    int length = forms.length;
-
-	    FeatureVector[][][] fvs = new FeatureVector[forms.length][forms.length][2];
-	    double[][][] probs = new double[forms.length][forms.length][2];
-	    FeatureVector[][][][] nt_fvs = new FeatureVector[forms.length][pipe.types.length][2][2];
-	    double[][][][] nt_probs = new double[forms.length][pipe.types.length][2][2];
-	    FeatureVector[][][] fvs_trips = new FeatureVector[length][length][length];
-	    double[][][] probs_trips = new double[length][length][length];
-	    FeatureVector[][][] fvs_sibs = new FeatureVector[length][length][2];
-	    double[][][] probs_sibs = new double[length][length][2];
-	    if(options.secondOrder)
-		((DependencyPipe2O)pipe).fillFeatureVectors(instance,fvs,probs,
-							    fvs_trips,probs_trips,
-							    fvs_sibs,probs_sibs,
-							    nt_fvs,nt_probs,params);
-	    else
-		pipe.fillFeatureVectors(instance,fvs,probs,nt_fvs,nt_probs,params);
-
-	    int K = options.testK;
-	    Object[][] d = null;
-	    if(options.decodeType.equals("proj")) {
-		if(options.secondOrder)
-		    d = ((DependencyDecoder2O)decoder).decodeProjective(instance,fvs,probs,
-									fvs_trips,probs_trips,
-									fvs_sibs,probs_sibs,
-									nt_fvs,nt_probs,K);
-		else
-		    d = decoder.decodeProjective(instance,fvs,probs,nt_fvs,nt_probs,K);
-	    }
-	    if(options.decodeType.equals("non-proj")) {
-		if(options.secondOrder)
-		    d = ((DependencyDecoder2O)decoder).decodeNonProjective(instance,fvs,probs,
-								       fvs_trips,probs_trips,
-								       fvs_sibs,probs_sibs,
-								       nt_fvs,nt_probs,K);
-		else
-		    d = decoder.decodeNonProjective(instance,fvs,probs,nt_fvs,nt_probs,K);
-	    }
-
-	    String[] res = ((String)d[0][1]).split(" ");
-
-	    String[] pos = instance.cpostags;
-
 	    String[] formsNoRoot = new String[forms.length-1];
 	    String[] posNoRoot = new String[formsNoRoot.length];
 	    String[] labels = new String[formsNoRoot.length];
 	    int[] heads = new int[formsNoRoot.length];
-
-	    Arrays.toString(forms);
-	    Arrays.toString(res);
-	    for(int j = 0; j < formsNoRoot.length; j++) {
-		formsNoRoot[j] = forms[j+1];
-		posNoRoot[j] = pos[j+1];
-
-		String[] trip = res[j].split("[\\|:]");
-		labels[j] = pipe.types[Integer.parseInt(trip[2])];
-		heads[j] = Integer.parseInt(trip[0]);
+			
+	    decode (instance,
+	    		options.testK,
+				params,
+				formsNoRoot,
+				posNoRoot,
+				labels,
+				heads );
+	    
+	    if (confEstimator != null ) {
+	    	double[] confidenceScores = 
+	    		confEstimator.estimateConfidence(instance);
+	    	pipe.outputInstance(new DependencyInstance(formsNoRoot, posNoRoot, labels, heads, confidenceScores));
+	    } else {
+	    	pipe.outputInstance(new DependencyInstance(formsNoRoot, posNoRoot, labels, heads));
 	    }
-
-	    pipe.outputInstance(new DependencyInstance(formsNoRoot, posNoRoot, labels, heads));
 
 	    //String line1 = ""; String line2 = ""; String line3 = ""; String line4 = "";
 	    //for(int j = 1; j < pos.length; j++) {
@@ -248,6 +220,93 @@ public class DependencyParser {
 
     }
 
+    //////////////////////////////////////////////////////
+    // Decode single instance 
+    //////////////////////////////////////////////////////
+    String[] decode (DependencyInstance instance,
+					int K,
+					Parameters params ) {
+
+		String[] forms = instance.forms;
+		
+		int length = forms.length;
+		
+		FeatureVector[][][] fvs = new FeatureVector[forms.length][forms.length][2];
+		double[][][] probs = new double[forms.length][forms.length][2];
+		FeatureVector[][][][] nt_fvs = new FeatureVector[forms.length][pipe.types.length][2][2];
+		double[][][][] nt_probs = new double[forms.length][pipe.types.length][2][2];
+		FeatureVector[][][] fvs_trips = new FeatureVector[length][length][length];
+		double[][][] probs_trips = new double[length][length][length];
+		FeatureVector[][][] fvs_sibs = new FeatureVector[length][length][2];
+		double[][][] probs_sibs = new double[length][length][2];
+		if(options.secondOrder)
+			((DependencyPipe2O)pipe).fillFeatureVectors(instance,fvs,probs,
+							    fvs_trips,probs_trips,
+							    fvs_sibs,probs_sibs,
+							    nt_fvs,nt_probs,params);
+		else
+			pipe.fillFeatureVectors(instance,fvs,probs,nt_fvs,nt_probs,params);
+		
+		Object[][] d = null;
+		if(options.decodeType.equals("proj")) {
+		if(options.secondOrder)
+			d = ((DependencyDecoder2O)decoder).decodeProjective(instance,fvs,probs,
+									fvs_trips,probs_trips,
+									fvs_sibs,probs_sibs,
+									nt_fvs,nt_probs,K);
+		else
+			d = decoder.decodeProjective(instance,fvs,probs,nt_fvs,nt_probs,K);
+		}
+		if(options.decodeType.equals("non-proj")) {
+		if(options.secondOrder)
+			d = ((DependencyDecoder2O)decoder).decodeNonProjective(instance,fvs,probs,
+							       fvs_trips,probs_trips,
+							       fvs_sibs,probs_sibs,
+							       nt_fvs,nt_probs,K);
+		else
+			d = decoder.decodeNonProjective(instance,fvs,probs,nt_fvs,nt_probs,K);
+		}
+		
+		String[] res = ((String)d[0][1]).split(" ");
+		return res;
+    }
+    
+    public void decode (DependencyInstance instance,
+    					int K,
+    					Parameters params,
+    					String[] formsNoRoot,
+    					String[] posNoRoot,
+    					String[] labels,
+    					int[] heads ) {
+	
+	    String[] forms = instance.forms;
+	
+	    String[] res = decode(instance, K, params);
+	
+	    String[] pos = instance.cpostags;
+	
+	    for(int j = 0; j < forms.length-1; j++) {
+			formsNoRoot[j] = forms[j+1];
+			posNoRoot[j] = pos[j+1]; 
+			String[] trip = res[j].split("[\\|:]");
+			labels[j] = pipe.types[Integer.parseInt(trip[2])];
+			heads[j] = Integer.parseInt(trip[0]);
+	    }
+	}
+    
+    public void decode (DependencyInstance instance,
+			int K,
+			Parameters params,
+			int[] heads ) {
+    	
+		String[] res = decode(instance, K, params);
+		
+		for(int j = 0; j <  instance.forms.length-1; j++) {
+			String[] trip = res[j].split("[\\|:]");
+			heads[j] = Integer.parseInt(trip[0]);
+		}
+	}    
+    
     /////////////////////////////////////////////////////
     // RUNNING THE PARSER
     ////////////////////////////////////////////////////
@@ -301,6 +360,15 @@ public class DependencyParser {
 	if (options.eval) {
 	    System.out.println("\nEVALUATION PERFORMANCE:");
 	    DependencyEvaluator.evaluate(options.goldfile, 
+					 options.outfile, 
+					 options.format,
+					 (options.confidenceEstimator != null));
+	}
+	
+	if (options.rankEdgesByConfidence) {
+	    System.out.println("\nRank edges by confidence:");
+	    EdgeRankerByConfidence edgeRanker = new EdgeRankerByConfidence();
+	    edgeRanker.rankEdgesByConfidence(options.goldfile, 
 					 options.outfile, 
 					 options.format);
 	}

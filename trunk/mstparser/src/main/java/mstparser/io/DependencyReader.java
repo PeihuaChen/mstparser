@@ -29,6 +29,7 @@ public abstract class DependencyReader {
 
     protected BufferedReader inputReader;
     protected boolean labeled = true;
+    protected boolean confScores = false;
 
     public static DependencyReader createDependencyReader (String format, 
 							   boolean discourseMode) 
@@ -50,6 +51,13 @@ public abstract class DependencyReader {
 
 	return createDependencyReader(format, false);
     }
+    
+	public static DependencyReader createDependencyReaderWithConfidenceScores(
+			String format) throws IOException {
+	DependencyReader reader = createDependencyReader(format);
+	reader.confScores = true;
+	return reader;
+	}
 
 
     public boolean startReading (String file) throws IOException {
@@ -72,6 +80,5 @@ public abstract class DependencyReader {
 	    return "<num>";
 
 	return s;
-    }	
-
+    }
 }

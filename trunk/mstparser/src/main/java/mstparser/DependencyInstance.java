@@ -39,6 +39,9 @@ public class DependencyInstance implements Serializable {
 
     // RELATIONAL FEATURE: relational features that hold between items
     public RelationalFeature[] relFeats;
+	
+    // Confidence scores per edge
+    public double[] confidenceScores;
 
     public DependencyInstance() {}
 
@@ -71,6 +74,12 @@ public class DependencyInstance implements Serializable {
 	this.heads = heads;
     }
 
+    public DependencyInstance(String[] forms, String[] postags, 
+		      String[] labs, int[] heads, double[] confidenceScores) {
+	this(forms, postags, labs, heads);
+	this.confidenceScores = confidenceScores;
+	}
+    
     public DependencyInstance(String[] forms, String[] lemmas, String[] cpostags, 
 			      String[] postags, String[][] feats, String[] labs, int[] heads) {
 	this(forms, postags, labs, heads);
@@ -78,13 +87,14 @@ public class DependencyInstance implements Serializable {
 	this.cpostags = cpostags;
 	this.feats = feats;
     }
-
+    
     public DependencyInstance(String[] forms, String[] lemmas, String[] cpostags, 
-			      String[] postags, String[][] feats, String[] labs, int[] heads,
-			      RelationalFeature[] relFeats) {
-	this(forms, lemmas, cpostags, postags, feats, labs, heads);
-	this.relFeats = relFeats;
-    }
+		      String[] postags, String[][] feats, String[] labs, int[] heads,
+		      RelationalFeature[] relFeats, double[] confidenceScores) {
+    this(forms, lemmas, cpostags, postags, feats, labs, heads);
+    this.relFeats = relFeats;
+    this.confidenceScores = confidenceScores;
+    }    
 
     public void setFeatureVector (FeatureVector fv) {
 	this.fv = fv;
