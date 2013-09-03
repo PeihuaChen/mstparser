@@ -39,7 +39,9 @@ public class MSTWriter extends DependencyWriter {
 	writer.write(Util.join(instance.postags, '\t') + "\n");
 	if (labeled)
 	    writer.write(Util.join(instance.deprels, '\t') + "\n");
-	writer.write(Util.join(instance.heads, '\t') + "\n\n");
+	writer.write(Util.join(instance.heads, '\t') + "\n");
+	if (instance.confidenceScores != null)
+		writer.write(Util.join(instance.confidenceScores, '\t', 3) + "\n");
+	writer.write("\n");
     }
-
 }

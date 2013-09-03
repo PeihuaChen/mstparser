@@ -7,12 +7,18 @@ public class DependencyEvaluator {
 	
     public static void evaluate (String act_file, 
 				 String pred_file, 
-				 String format) throws IOException {
+				 String format, boolean hasConfidence) throws IOException {
 	
 	DependencyReader goldReader = DependencyReader.createDependencyReader(format);
 	boolean labeled = goldReader.startReading(act_file);
 
-	DependencyReader predictedReader = DependencyReader.createDependencyReader(format);
+	DependencyReader predictedReader;
+	if ( hasConfidence ) {
+		predictedReader = 
+		DependencyReader.createDependencyReaderWithConfidenceScores(format);
+	} else {
+		predictedReader = DependencyReader.createDependencyReader(format);
+	}
 	boolean predLabeled = predictedReader.startReading(pred_file);
 
 	if (labeled != predLabeled)
@@ -83,7 +89,7 @@ public class DependencyEvaluator {
 	if (args.length > 2)
 	    format = args[2];
 
-	evaluate(args[0], args[1], format);
+	evaluate(args[0], args[1], format, false);
     }
 
 }

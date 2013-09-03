@@ -36,6 +36,7 @@ public class MSTReader extends DependencyReader {
 	String pos_line = inputReader.readLine();
 	String deprel_line = labeled ? inputReader.readLine() : pos_line;
 	String heads_line = inputReader.readLine();
+	String conf_line = confScores ? inputReader.readLine() : "";
 	inputReader.readLine(); // blank line
 
 	if(line == null) {
@@ -64,8 +65,18 @@ public class MSTReader extends DependencyReader {
 	    heads_new[i+1] = heads[i];
 	}
 
+	double[] confs_new = null;
+	if (confScores){
+		double[] confs = Util.stringsToDoubles(conf_line.split("\t"));
+		confs_new = new double[confs.length+1];
+		confs_new[0] = 1;
+		for(int i = 0; i < forms.length; i++) {
+		    confs_new[i+1] = confs[i];
+		}		
+	}
+	
 	DependencyInstance instance = 
-	    new DependencyInstance(forms_new, pos_new, deprels_new, heads_new);
+		new DependencyInstance(forms_new, pos_new, deprels_new, heads_new, confs_new);
 
 	// set up the course pos tags as just the first letter of the fine-grained ones
 	String[] cpostags = new String[pos_new.length];
@@ -91,6 +102,7 @@ public class MSTReader extends DependencyReader {
     protected boolean fileContainsLabels (String file) throws IOException {
 	BufferedReader in = new BufferedReader(new FileReader(file));
 	in.readLine(); in.readLine(); in.readLine();
+	if (confScores) in.readLine();
 	String line = in.readLine();
 	in.close();
 
