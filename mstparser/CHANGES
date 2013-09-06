@@ -1,4 +1,21 @@
 -----------------------------------------------------------------------
+v0.5.1
+
+- Issue 10 - loadModel() method from DepdendencyParser should also be 
+  able to receive an InputStream
+- Issue 9 - Add a method to DependencyParser which return the Parse 
+  Trees
+- Issue 7 - Update source folder at ant script
+- Issue 6 - Change visibility of some methods and attributes to 
+  facilitate wrapping
+- Issue 2 - Convert project to maven
+
+-----------------------------------------------------------------------
+v0.5.0
+
+  UNKNOWN
+
+-----------------------------------------------------------------------
 v0.4.3b
 
 - Fixed bug: DependencyInstance serialization was not handling the
