@@ -64,7 +64,9 @@ public class DependencyParser {
 			      File train_forest, int iter) throws IOException {
 
 	int numUpd = 0;
-	ObjectInputStream in = new ObjectInputStream(new FileInputStream(train_forest));
+	ObjectInputStream in = null;
+	try {
+	in = new ObjectInputStream(new FileInputStream(train_forest));
 	boolean evaluateI = true;
 
 	int numInstances = instanceLengths.length;
@@ -132,26 +134,37 @@ public class DependencyParser {
 	//System.out.println("  "+numInstances+" instances");
 
 	System.out.print(numInstances);
-
-	in.close();
-
+	}
+	finally {
+	  Util.closeQuietly(in);
+	}
     }
 
     ///////////////////////////////////////////////////////
     // Saving and loading models
     ///////////////////////////////////////////////////////
     public void saveModel(String file) throws IOException {
-	ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(file));
-	out.writeObject(params.parameters);
-	out.writeObject(pipe.dataAlphabet);
-	out.writeObject(pipe.typeAlphabet);
-	out.close();
+	ObjectOutputStream out = null;
+	try {
+	  out = new ObjectOutputStream(new FileOutputStream(file));
+	  out.writeObject(params.parameters);
+	  out.writeObject(pipe.dataAlphabet);
+	  out.writeObject(pipe.typeAlphabet);
+	}
+	finally {
+	  Util.closeQuietly(out);
+	}
     }
 
     public void loadModel(String file) throws Exception {
-    	ObjectInputStream in = new ObjectInputStream(new FileInputStream(file));
-    	this.loadModel(in);
-    	in.close();
+    	ObjectInputStream in = null;
+    	try {
+          in = new ObjectInputStream(new FileInputStream(file));
+    	  loadModel(in);
+    	}
+    	finally {
+    	  Util.closeQuietly(in);
+    	}
     }
 
     public void loadModel(ObjectInputStream aObjectInputStream) throws ClassNotFoundException,
@@ -166,97 +179,105 @@ public class DependencyParser {
     // Get Best Parses ///////////////////////////////////
     //////////////////////////////////////////////////////
 
-    public List<DependencyInstance> getParseTrees(boolean printParses) throws IOException{
+    public List<DependencyInstance> getParseTrees() throws IOException{
         List<DependencyInstance> allInstances = new ArrayList<DependencyInstance>();
-        outputParses(printParses, allInstances, false);
+        outputParses(allInstances, false);
         return allInstances;
     }
 
-    public void outputParses () throws IOException {
-        outputParses(true, new ArrayList<DependencyInstance>(), true);
+    public void outputParses() throws IOException {
+        outputParses(null, true);
     }
 
-    public void outputParses (boolean printParses, List<DependencyInstance> allInstances,
-            boolean usesOutFile)
+    /**
+     * Get the parses.
+     * 
+     * @param allInstances a list to which all parse results are written. Can be {@code null}.
+     * @param writeOutput write output to file and log some messages to screen.
+     */
+    protected void outputParses (List<DependencyInstance> allInstances, boolean writeOutput)
             throws IOException {
 
-	String tFile = options.testfile;
-	String file = null;
-	if(usesOutFile){
-	    file = options.outfile;
+    String tFile = options.testfile;
+    String file = null;
+    if(writeOutput){
+        file = options.outfile;
+    }
+    
+    ConfidenceEstimator confEstimator = null;
+    if (options.confidenceEstimator != null){
+        confEstimator = 
+            ConfidenceEstimator.resolveByName(options.confidenceEstimator,
+                                                this);
+        System.out.println("Applying confidence estimation: "+
+                options.confidenceEstimator);
+    }
+
+    long start = System.currentTimeMillis();
+
+    pipe.initInputFile(tFile);
+	if(writeOutput){
+      pipe.initOutputFile(file);
 	}
 
-	ConfidenceEstimator confEstimator = null;
-	if (options.confidenceEstimator != null){
-		confEstimator =
-			ConfidenceEstimator.resolveByName(options.confidenceEstimator,
-												this);
-		System.out.println("Applying confidence estimation: "+
-				options.confidenceEstimator);
-	}
-
-	long start = System.currentTimeMillis();
-
-	pipe.initInputFile(tFile);
-	if(usesOutFile){
-	    pipe.initOutputFile(file);
-	}
-
-	if(printParses){
-	    System.out.print("Processing Sentence: ");
-	}
-	DependencyInstance instance = pipe.nextInstance();
-	int cnt = 0;
-	while(instance != null) {
-	    cnt++;
-	    if(printParses){
-	        System.out.print(cnt+" ");
-	    }
-	    String[] forms = instance.forms;
-	    String[] formsNoRoot = new String[forms.length-1];
-	    String[] posNoRoot = new String[formsNoRoot.length];
-	    String[] labels = new String[formsNoRoot.length];
-	    int[] heads = new int[formsNoRoot.length];
-
-	    decode (instance,
-	    		options.testK,
-				params,
-				formsNoRoot,
-				posNoRoot,
-				labels,
-				heads );
-        DependencyInstance parsedInstance = new DependencyInstance(formsNoRoot, posNoRoot,
-                labels, heads);
-
-	    if (confEstimator != null ) {
-	    	double[] confidenceScores =
-	    		confEstimator.estimateConfidence(instance);
+    if(writeOutput){
+        System.out.print("Processing Sentence: ");
+    }
+    DependencyInstance instance = pipe.nextInstance();
+    int cnt = 0;
+    while(instance != null) {
+        cnt++;
+        if(writeOutput){
+            System.out.print(cnt+" ");
+        }
+        String[] forms = instance.forms;
+        String[] formsNoRoot = new String[forms.length-1];
+        String[] posNoRoot = new String[formsNoRoot.length];
+        String[] labels = new String[formsNoRoot.length];
+        int[] heads = new int[formsNoRoot.length];
+            
+        decode (instance,
+                options.testK,
+                params,
+                formsNoRoot,
+                posNoRoot,
+                labels,
+                heads );
+        
+        DependencyInstance parsedInstance;
+        if (confEstimator != null ) {
+            double[] confidenceScores = 
+                confEstimator.estimateConfidence(instance);
             parsedInstance = new DependencyInstance(formsNoRoot, posNoRoot, labels, heads,
                     confidenceScores);
-	    }
-        if (printParses) {
-	    	pipe.outputInstance(new DependencyInstance(formsNoRoot, posNoRoot, labels, heads));
-	    }
-        allInstances.add(parsedInstance);
+        } else {
+            parsedInstance = new DependencyInstance(formsNoRoot, posNoRoot, labels, heads);
+        }
+        if (writeOutput) {
+            pipe.outputInstance(parsedInstance);
+        }
+        if (allInstances != null) {
+          allInstances.add(parsedInstance);
+        }
 
-	    //String line1 = ""; String line2 = ""; String line3 = ""; String line4 = "";
-	    //for(int j = 1; j < pos.length; j++) {
-	    //	String[] trip = res[j-1].split("[\\|:]");
-	    //	line1+= sent[j] + "\t"; line2 += pos[j] + "\t";
-	    //	line4 += trip[0] + "\t"; line3 += pipe.types[Integer.parseInt(trip[2])] + "\t";
-	    //}
-	    //pred.write(line1.trim() + "\n" + line2.trim() + "\n"
-	    //	       + (pipe.labeled ? line3.trim() + "\n" : "")
-	    //	       + line4.trim() + "\n\n");
+        //String line1 = ""; String line2 = ""; String line3 = ""; String line4 = "";
+        //for(int j = 1; j < pos.length; j++) {
+        //  String[] trip = res[j-1].split("[\\|:]");
+        //  line1+= sent[j] + "\t"; line2 += pos[j] + "\t";
+        //  line4 += trip[0] + "\t"; line3 += pipe.types[Integer.parseInt(trip[2])] + "\t";
+        //}
+        //pred.write(line1.trim() + "\n" + line2.trim() + "\n"
+        //         + (pipe.labeled ? line3.trim() + "\n" : "")
+        //         + line4.trim() + "\n\n");
 
-	    instance = pipe.nextInstance();
-	}
-	pipe.close();
-
-	long end = System.currentTimeMillis();
-	if(printParses){
-	    System.out.println("Took: " + (end-start));
-	}
+        instance = pipe.nextInstance();
+    }
+    pipe.close();
+        
+    if(writeOutput){
+        long end = System.currentTimeMillis();
+        System.out.println("Took: " + (end-start));
+    }
 
     }
 

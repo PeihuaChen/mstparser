@@ -1,5 +1,7 @@
 package mstparser;
 
+import java.io.Closeable;
+import java.io.IOException;
 import java.text.DecimalFormat;
 
 /**
@@ -52,4 +54,14 @@ public class Util {
 	return sb.toString();
     }
     
+    public static void closeQuietly(Closeable closeable) {
+      if (closeable != null) {
+        try {
+          closeable.close();
+        }
+        catch (IOException e) {
+         // Ignore
+        }
+      }
+    }
 }
