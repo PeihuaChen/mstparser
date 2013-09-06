@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
@@ -157,9 +158,9 @@ public class DependencyParser {
     }
 
     public void loadModel(String file) throws Exception {
-    	ObjectInputStream in = null;
+    	InputStream in = null;
     	try {
-          in = new ObjectInputStream(new FileInputStream(file));
+          in = new FileInputStream(file);
     	  loadModel(in);
     	}
     	finally {
@@ -167,19 +168,26 @@ public class DependencyParser {
     	}
     }
 
-    public void loadModel(ObjectInputStream aObjectInputStream) throws ClassNotFoundException,
-        IOException{
-        params.parameters = (double[]) aObjectInputStream.readObject();
-        pipe.dataAlphabet = (Alphabet) aObjectInputStream.readObject();
-        pipe.typeAlphabet = (Alphabet) aObjectInputStream.readObject();
+    public void loadModel(InputStream inputStream) throws IOException{
+      try {
+        ObjectInputStream is = new ObjectInputStream(inputStream);
+        params.parameters = (double[]) is.readObject();
+        pipe.dataAlphabet = (Alphabet) is.readObject();
+        pipe.typeAlphabet = (Alphabet) is.readObject();
         pipe.closeAlphabets();
+      }
+      catch (ClassNotFoundException e) {
+        IOException e2 = new IOException("Unable to load model: " + e.getMessage());
+        e2.initCause(e);
+        throw e2;
+      }
     }
 
     //////////////////////////////////////////////////////
     // Get Best Parses ///////////////////////////////////
     //////////////////////////////////////////////////////
 
-    public List<DependencyInstance> getParseTrees() throws IOException{
+    public List<DependencyInstance> getParses() throws IOException{
         List<DependencyInstance> allInstances = new ArrayList<DependencyInstance>();
         outputParses(allInstances, false);
         return allInstances;
