@@ -1,9 +1,8 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>net.sourceforge.mstparser</groupId>
 	<artifactId>mstparser</artifactId>
-	<version>0.5.1-SNAPSHOT</version>
+	<version>0.5.1</version>
 	<name>MSTParser</name>
 	<url>http://mstparser.sourceforge.net</url>
 	<description>
@@ -30,9 +29,9 @@
 		</license>
 	</licenses>
 	<scm>
-		<connection>scm:svn:https://svn.code.sf.net/p/mstparser/code/trunk/mstparser</connection>
-		<developerConnection>scm:svn:https://svn.code.sf.net/p/mstparser/code/trunk/mstparser</developerConnection>
-		<url>https://sourceforge.net/p/mstparser/code/</url>
+		<connection>scm:svn:https://svn.code.sf.net/p/mstparser/code/tags/mstparser-0.5.1</connection>
+		<developerConnection>scm:svn:https://svn.code.sf.net/p/mstparser/code/tags/mstparser-0.5.1</developerConnection>
+		<url>https://sourceforge.net/p/mstparser/code/tags/mstparser-0.5.1</url>
 	</scm>
 	<issueManagement>
 		<system>Sourceforge</system>
