@@ -12,7 +12,10 @@
 
 package mstparser.io;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
 
 /**
  * A class that defines common behavior and abstract methods for

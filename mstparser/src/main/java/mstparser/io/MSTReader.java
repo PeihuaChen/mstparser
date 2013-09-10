@@ -12,9 +12,12 @@
 
 package mstparser.io;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+
 import mstparser.DependencyInstance;
 import mstparser.Util;
-import java.io.*;
 
 /**
  * A reader for files in MST format.

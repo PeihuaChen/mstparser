@@ -1,9 +1,5 @@
 package mstparser;
 
-import java.io.*;
-import java.util.ArrayList;
-import java.util.ListIterator;
-import gnu.trove.*;
 
 public class Parameters {
 

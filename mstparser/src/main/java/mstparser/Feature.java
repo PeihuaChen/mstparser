@@ -12,7 +12,7 @@
 
 package mstparser;
 
-import gnu.trove.*;
+import gnu.trove.TLinkableAdaptor;
 
 
 /**

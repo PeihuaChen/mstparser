@@ -1,9 +1,8 @@
 package mstparser;
 
-import java.io.*;
-import gnu.trove.*;
-import java.util.*;
-import mstparser.io.*;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 
 public class DependencyPipe2O extends DependencyPipe {
 

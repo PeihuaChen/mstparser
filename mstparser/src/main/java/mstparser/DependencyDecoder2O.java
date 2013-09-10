@@ -1,11 +1,5 @@
 package mstparser;
 
-import java.io.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import gnu.trove.*;
-import java.text.DecimalFormat;
 
 public class DependencyDecoder2O extends DependencyDecoder {
 

@@ -1,10 +1,9 @@
 package mstparser;
 
-import java.io.*;
+import gnu.trove.TIntIntHashMap;
+
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.StringTokenizer;
-import gnu.trove.*;
 
 public class DependencyDecoder {
 

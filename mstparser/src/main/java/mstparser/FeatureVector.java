@@ -12,8 +12,11 @@
 
 package mstparser;
 
-import gnu.trove.*;
-import java.util.*;
+import gnu.trove.TIntArrayList;
+import gnu.trove.TIntDoubleHashMap;
+import gnu.trove.TLinkedList;
+
+import java.util.ListIterator;
 
 
 
