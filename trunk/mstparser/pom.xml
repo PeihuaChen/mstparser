@@ -6,7 +6,11 @@
 	<version>0.5.1-SNAPSHOT</version>
 	<name>MSTParser</name>
 	<url>http://mstparser.sourceforge.net</url>
-	<description>MSTParser is a non-projective dependency parser that searches for maximum spanning trees over directed graphs. Models of dependency structure are based on large-margin discriminative training methods. Projective parsing is also supported.</description>
+	<description>
+	    MSTParser is a non-projective dependency parser that searches for maximum spanning trees 
+	    over directed graphs. Models of dependency structure are based on large-margin 
+	    discriminative training methods. Projective parsing is also supported.
+	</description>
 	<inceptionYear>2006</inceptionYear>
 	<parent>
 		<groupId>org.sonatype.oss</groupId>
@@ -28,7 +32,12 @@
 	<scm>
 		<connection>scm:svn:https://svn.code.sf.net/p/mstparser/code/trunk/mstparser</connection>
 		<developerConnection>scm:svn:https://svn.code.sf.net/p/mstparser/code/trunk/mstparser</developerConnection>
+		<url>https://sourceforge.net/p/mstparser/code/</url>
 	</scm>
+	<issueManagement>
+		<system>Sourceforge</system>
+		<url>https://sourceforge.net/p/mstparser/bugs/</url>
+	</issueManagement>
 	<dependencies>
 		<dependency>
 			<groupId>trove</groupId>
