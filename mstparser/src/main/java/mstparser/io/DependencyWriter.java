@@ -20,22 +20,23 @@ import java.io.OutputStreamWriter;
 import mstparser.DependencyInstance;
 
 /**
- * A class that defines common behavior and abstract methods for
- * writers for different formats.
- *
+ * A class that defines common behavior and abstract methods for writers for different formats.
+ * 
  * <p>
  * Created: Sat Nov 10 15:25:10 2001
  * </p>
- *
+ * 
  * @author Jason Baldridge
  * @version $Id$
  */
 public abstract class DependencyWriter {
 
   protected BufferedWriter writer;
+
   protected boolean labeled = false;
 
-  public static DependencyWriter createDependencyWriter (String format, boolean labeled) throws IOException {
+  public static DependencyWriter createDependencyWriter(String format, boolean labeled)
+          throws IOException {
     if (format.equals("MST")) {
       return new MSTWriter(labeled);
     } else if (format.equals("CONLL")) {
@@ -47,11 +48,11 @@ public abstract class DependencyWriter {
     }
   }
 
-  public void startWriting (String file) throws IOException {
-    writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file),"UTF8"));
+  public void startWriting(String file) throws IOException {
+    writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file), "UTF8"));
   }
 
-  public void finishWriting () throws IOException {
+  public void finishWriting() throws IOException {
     writer.flush();
     writer.close();
   }

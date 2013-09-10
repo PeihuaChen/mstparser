@@ -27,12 +27,11 @@ import mstparser.io.DependencyReader;
 
 public class EdgeRankerByConfidence {
 
-  public void rankEdgesByConfidence(String act_file, String pred_file,
-          String format) throws IOException {
+  public void rankEdgesByConfidence(String act_file, String pred_file, String format)
+          throws IOException {
 
     // Reader of file without confidence scores
-    DependencyReader goldReader = DependencyReader
-            .createDependencyReader(format);
+    DependencyReader goldReader = DependencyReader.createDependencyReader(format);
     boolean labeled = goldReader.startReading(act_file);
 
     // Reader of file *with* confidence scores
@@ -42,7 +41,7 @@ public class EdgeRankerByConfidence {
 
     if (labeled != predLabeled)
       System.out
-      .println("Gold file and predicted file appear to differ on whether or not they are labeled. Expect problems!!!");
+              .println("Gold file and predicted file appear to differ on whether or not they are labeled. Expect problems!!!");
 
     int instIndex = 0;
 
@@ -56,8 +55,7 @@ public class EdgeRankerByConfidence {
       int instanceLength = goldInstance.length();
 
       if (instanceLength != predInstance.length())
-        System.out.println("Lengths do not match on sentence "
-                + instIndex);
+        System.out.println("Lengths do not match on sentence " + instIndex);
 
       int[] goldHeads = goldInstance.heads;
       int[] predHeads = predInstance.heads;
@@ -111,6 +109,7 @@ public class EdgeRankerByConfidence {
 
   class PredictedEdge {
     boolean correct;
+
     double confScore;
 
     public PredictedEdge(boolean correct, double confScore) {

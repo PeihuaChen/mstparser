@@ -21,17 +21,16 @@ import mstparser.Util;
 
 /**
  * A reader for files in MST format.
- *
+ * 
  * <p>
  * Created: Sat Nov 10 15:25:10 2001
  * </p>
- *
+ * 
  * @author Jason Baldridge
  * @version $Id$
  * @see mstparser.io.DependencyReader
  */
 public class MSTReader extends DependencyReader {
-
 
   @Override
   public DependencyInstance getNext() throws IOException {
@@ -43,7 +42,7 @@ public class MSTReader extends DependencyReader {
     String conf_line = confScores ? inputReader.readLine() : "";
     inputReader.readLine(); // blank line
 
-    if(line == null) {
+    if (line == null) {
       inputReader.close();
       return null;
     }
@@ -53,48 +52,48 @@ public class MSTReader extends DependencyReader {
     String[] deprels = deprel_line.split("\t");
     int[] heads = Util.stringsToInts(heads_line.split("\t"));
 
-    String[] forms_new = new String[forms.length+1];
-    String[] pos_new = new String[pos.length+1];
-    String[] deprels_new = new String[deprels.length+1];
-    int[] heads_new = new int[heads.length+1];
+    String[] forms_new = new String[forms.length + 1];
+    String[] pos_new = new String[pos.length + 1];
+    String[] deprels_new = new String[deprels.length + 1];
+    int[] heads_new = new int[heads.length + 1];
 
     forms_new[0] = "<root>";
     pos_new[0] = "<root-POS>";
     deprels_new[0] = "<no-type>";
     heads_new[0] = -1;
-    for(int i = 0; i < forms.length; i++) {
-      forms_new[i+1] = normalize(forms[i]);
-      pos_new[i+1] = pos[i];
-      deprels_new[i+1] = labeled ? deprels[i] : "<no-type>";
-      heads_new[i+1] = heads[i];
+    for (int i = 0; i < forms.length; i++) {
+      forms_new[i + 1] = normalize(forms[i]);
+      pos_new[i + 1] = pos[i];
+      deprels_new[i + 1] = labeled ? deprels[i] : "<no-type>";
+      heads_new[i + 1] = heads[i];
     }
 
     double[] confs_new = null;
-    if (confScores){
+    if (confScores) {
       double[] confs = Util.stringsToDoubles(conf_line.split("\t"));
-      confs_new = new double[confs.length+1];
+      confs_new = new double[confs.length + 1];
       confs_new[0] = 1;
-      for(int i = 0; i < forms.length; i++) {
-        confs_new[i+1] = confs[i];
+      for (int i = 0; i < forms.length; i++) {
+        confs_new[i + 1] = confs[i];
       }
     }
 
-    DependencyInstance instance =
-            new DependencyInstance(forms_new, pos_new, deprels_new, heads_new, confs_new);
+    DependencyInstance instance = new DependencyInstance(forms_new, pos_new, deprels_new,
+            heads_new, confs_new);
 
     // set up the course pos tags as just the first letter of the fine-grained ones
     String[] cpostags = new String[pos_new.length];
     cpostags[0] = "<root-CPOS>";
-    for(int i = 1; i < pos_new.length; i++)
-      cpostags[i] = pos_new[i].substring(0,1);
+    for (int i = 1; i < pos_new.length; i++)
+      cpostags[i] = pos_new[i].substring(0, 1);
     instance.cpostags = cpostags;
 
     // set up the lemmas as just the first 5 characters of the forms
     String[] lemmas = new String[forms_new.length];
     cpostags[0] = "<root-LEMMA>";
-    for(int i = 1; i < forms_new.length; i++) {
+    for (int i = 1; i < forms_new.length; i++) {
       int formLength = forms_new[i].length();
-      lemmas[i] = formLength > 5 ? forms_new[i].substring(0,5) : forms_new[i];
+      lemmas[i] = formLength > 5 ? forms_new[i].substring(0, 5) : forms_new[i];
     }
     instance.lemmas = lemmas;
     instance.feats = new String[0][0];
@@ -102,16 +101,18 @@ public class MSTReader extends DependencyReader {
     return instance;
   }
 
-
   @Override
-  protected boolean fileContainsLabels (String file) throws IOException {
+  protected boolean fileContainsLabels(String file) throws IOException {
     BufferedReader in = new BufferedReader(new FileReader(file));
-    in.readLine(); in.readLine(); in.readLine();
-    if (confScores) in.readLine();
+    in.readLine();
+    in.readLine();
+    in.readLine();
+    if (confScores)
+      in.readLine();
     String line = in.readLine();
     in.close();
 
-    if(line.trim().length() > 0)
+    if (line.trim().length() > 0)
       return true;
     else
       return false;

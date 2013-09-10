@@ -19,18 +19,18 @@ import mstparser.Util;
 
 /**
  * A writer to create files in MST format.
- *
+ * 
  * <p>
  * Created: Sat Nov 10 15:25:10 2001
  * </p>
- *
+ * 
  * @author Jason Baldridge
  * @version $Id$
  * @see mstparser.io.DependencyWriter
  */
 public class MSTWriter extends DependencyWriter {
 
-  public MSTWriter (boolean labeled) {
+  public MSTWriter(boolean labeled) {
     this.labeled = labeled;
   }
 

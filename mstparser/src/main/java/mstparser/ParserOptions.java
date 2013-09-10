@@ -16,11 +16,11 @@ import java.io.File;
 
 /**
  * Hold all the options for the parser so they can be passed around easily.
- *
+ * 
  * <p>
  * Created: Sat Nov 10 15:25:10 2001
  * </p>
- *
+ * 
  * @author Jason Baldridge
  * @version $Id: CONLLReader.java 103 2007-01-21 20:26:39Z jasonbaldridge $
  * @see mstparser.io.DependencyReader
@@ -28,31 +28,52 @@ import java.io.File;
 public final class ParserOptions {
 
   public String trainfile = null;
+
   public String testfile = null;
+
   public File trainforest = null;
+
   public File testforest = null;
+
   public boolean train = false;
+
   public boolean eval = false;
+
   public boolean test = false;
+
   public boolean rankEdgesByConfidence = false;
+
   public String modelName = "dep.model";
+
   public String lossType = "punc";
+
   public boolean createForest = true;
+
   public String decodeType = "proj";
+
   public String format = "CONLL";
+
   public int numIters = 10;
+
   public String outfile = "out.txt";
+
   public String goldfile = null;
+
   public int trainK = 1;
+
   public int testK = 1;
+
   public boolean secondOrder = false;
+
   public boolean useRelationalFeatures = false;
+
   public boolean discourseMode = false;
+
   public String confidenceEstimator = null;
 
-  public ParserOptions (String[] args) {
+  public ParserOptions(String[] args) {
 
-    for(int i = 0; i < args.length; i++) {
+    for (int i = 0; i < args.length; i++) {
       String[] pair = args[i].split(":");
 
       if (pair[0].equals("train")) {
@@ -114,7 +135,6 @@ public final class ParserOptions {
       }
     }
 
-
     try {
       File tmpDir = new File("/tmp");
       if (null != trainfile) {
@@ -134,9 +154,8 @@ public final class ParserOptions {
     }
   }
 
-
   @Override
-  public String toString () {
+  public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append("FLAGS [");
     sb.append("train-file: " + trainfile);

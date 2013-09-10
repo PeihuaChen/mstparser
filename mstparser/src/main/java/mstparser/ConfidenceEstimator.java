@@ -2,8 +2,7 @@ package mstparser;
 
 public abstract class ConfidenceEstimator {
 
-  public static ConfidenceEstimator resolveByName(
-          String confEstimatorName,
+  public static ConfidenceEstimator resolveByName(String confEstimatorName,
           DependencyParser depParser) {
 
     // Expected name format: Type*param1*param2*...
@@ -17,8 +16,7 @@ public abstract class ConfidenceEstimator {
       return new ConfidenceEstimatorKDFix(stddev, K, depParser);
     }
 
-    throw new RuntimeException("Unknown confidence estimator: "
-            + confEstimatorName);
+    throw new RuntimeException("Unknown confidence estimator: " + confEstimatorName);
   }
 
   // Compute the confidence score for each predicted edge.

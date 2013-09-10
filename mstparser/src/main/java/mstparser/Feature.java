@@ -14,15 +14,13 @@ package mstparser;
 
 import gnu.trove.TLinkableAdaptor;
 
-
 /**
- * A simple class holding a feature index and value that can be used
- * in a TLinkedList.
- *
+ * A simple class holding a feature index and value that can be used in a TLinkedList.
+ * 
  * <p>
  * Created: Sat Nov 10 15:25:10 2001
  * </p>
- *
+ * 
  * @author Jason Baldridge
  * @version $Id: TLinkedList.java,v 1.5 2005/03/26 17:52:56 ericdf Exp $
  * @see mstparser.FeatureVector
@@ -31,25 +29,26 @@ import gnu.trove.TLinkableAdaptor;
 public final class Feature extends TLinkableAdaptor {
 
   public int index;
+
   public double value;
 
-  public Feature (int i, double v) {
+  public Feature(int i, double v) {
     index = i;
     value = v;
   }
 
   @Override
-  public final Feature clone () {
+  public final Feature clone() {
     return new Feature(index, value);
   }
 
-  public final Feature negation () {
+  public final Feature negation() {
     return new Feature(index, -value);
   }
 
   @Override
   public final String toString() {
-    return index+"="+value;
+    return index + "=" + value;
   }
 
 }
