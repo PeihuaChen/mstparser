@@ -35,13 +35,15 @@ import java.util.Random;
 public class ConfidenceEstimatorKDFix extends ConfidenceEstimator {
   // The number of parses to use for estimation.
   int k;
+
   // The Std-Dev to use for drawing the K parameter vectors.
   double stddev;
+
   Parameters parameters[];
+
   DependencyParser depParser;
 
-  public ConfidenceEstimatorKDFix(double stddev, int k,
-          DependencyParser depParser) {
+  public ConfidenceEstimatorKDFix(double stddev, int k, DependencyParser depParser) {
     this.stddev = stddev;
     this.k = k;
     this.depParser = depParser;
@@ -79,8 +81,7 @@ public class ConfidenceEstimatorKDFix extends ConfidenceEstimator {
   public double[] estimateConfidence(DependencyInstance inst) {
     // Parse the instance using the base parser parameters.
     int[] predictedHeads = new int[inst.heads.length - 1];
-    depParser.decode(inst, 1, depParser.getParams(),
-            predictedHeads);
+    depParser.decode(inst, 1, depParser.getParams(), predictedHeads);
 
     int[][] alternativeHeads = new int[k][predictedHeads.length];
     // Generate K alternative parses using the K sampled parameters vectors.
@@ -112,13 +113,11 @@ public class ConfidenceEstimatorKDFix extends ConfidenceEstimator {
   // /////////////////////////////////////////////////////////////////
   // Multi-threaded implementation of produce-K-Alternatives.
   // /////////////////////////////////////////////////////////////////
-  void produceKAlternatives_MT(DependencyInstance inst,
-          int[][] alternativeHeads) {
+  void produceKAlternatives_MT(DependencyInstance inst, int[][] alternativeHeads) {
     DecoderRunner[] runners = new DecoderRunner[k];
     // Generate K alternative parses using the K sampled parameters vectors.
     for (int i = 0; i < k; i++) {
-      runners[i] = new DecoderRunner(inst, parameters[i],
-              alternativeHeads[i]);
+      runners[i] = new DecoderRunner(inst, parameters[i], alternativeHeads[i]);
       runners[i].start();
     }
     // Wait for all decoder threads to complete
@@ -133,11 +132,12 @@ public class ConfidenceEstimatorKDFix extends ConfidenceEstimator {
 
   class DecoderRunner extends Thread {
     DependencyInstance inst;
+
     Parameters parameters;
+
     int[] heads;
 
-    public DecoderRunner(DependencyInstance inst, Parameters parameters,
-            int[] heads) {
+    public DecoderRunner(DependencyInstance inst, Parameters parameters, int[] heads) {
       super();
       this.inst = inst;
       this.parameters = parameters;
@@ -153,12 +153,10 @@ public class ConfidenceEstimatorKDFix extends ConfidenceEstimator {
   // /////////////////////////////////////////////////////////////////
   // Single threaded implementation of produce-K-Alternatives.
   // /////////////////////////////////////////////////////////////////
-  void produceKAlternatives_ST(DependencyInstance inst,
-          int[][] alternativeHeads) {
+  void produceKAlternatives_ST(DependencyInstance inst, int[][] alternativeHeads) {
     // Generate K alternative parses using the K sampled parameters vectors.
     for (int i = 0; i < k; i++) {
-      depParser.decode(inst, 1, parameters[i],
-              alternativeHeads[i]);
+      depParser.decode(inst, 1, parameters[i], alternativeHeads[i]);
     }
   }
 }
