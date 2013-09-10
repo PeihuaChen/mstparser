@@ -8,9 +8,9 @@
 
 
 
-/** 
+/**
     @author Andrew McCallum <a href="mailto:mccallum@cs.umass.edu">mccallum@cs.umass.edu</a>
-*/
+ */
 
 package mstparser;
 
@@ -21,90 +21,90 @@ import java.io.Serializable;
 
 public class Alphabet implements Serializable
 {
-    gnu.trove.TObjectIntHashMap map;
-    int numEntries;
-    boolean growthStopped = false;
+  gnu.trove.TObjectIntHashMap map;
+  int numEntries;
+  boolean growthStopped = false;
 
-    public Alphabet (int capacity)
-    {
-	this.map = new gnu.trove.TObjectIntHashMap (capacity);
-	//this.map.setDefaultValue(-1);
+  public Alphabet (int capacity)
+  {
+    this.map = new gnu.trove.TObjectIntHashMap (capacity);
+    //this.map.setDefaultValue(-1);
 
-	numEntries = 0;
+    numEntries = 0;
+  }
+
+  public Alphabet ()
+  {
+    this (10000);
+  }
+
+
+  /** Return -1 if entry isn't present. */
+  public int lookupIndex (Object entry)
+  {
+    if (entry == null) {
+      throw new IllegalArgumentException ("Can't lookup \"null\" in an Alphabet.");
     }
 
-    public Alphabet ()
-    {
-	this (10000);
+    int ret = map.get(entry);
+
+    if (ret == -1 && !growthStopped) {
+      ret = numEntries;
+      map.put (entry, ret);
+      numEntries++;
     }
 
-	
-    /** Return -1 if entry isn't present. */
-    public int lookupIndex (Object entry)
-    {
-	if (entry == null) {
-	    throw new IllegalArgumentException ("Can't lookup \"null\" in an Alphabet.");
-	}
+    return ret;
+  }
 
-	int ret = map.get(entry);
+  public Object[] toArray () {
+    return map.keys();
+  }
 
-	if (ret == -1 && !growthStopped) {
-	    ret = numEntries;
-	    map.put (entry, ret);
-	    numEntries++;
-	}
-	
-	return ret;
-    }
+  public boolean contains (Object entry)
+  {
+    return map.contains (entry);
+  }
 
-    public Object[] toArray () {
-	return map.keys();
-    }
+  public int size ()
+  {
+    return numEntries;
+  }
 
-    public boolean contains (Object entry)
-    {
-	return map.contains (entry);
-    }
+  public void stopGrowth ()
+  {
+    growthStopped = true;
+    map.compact();
+  }
 
-    public int size ()
-    {
-	return numEntries;
-    }
+  public void allowGrowth ()
+  {
+    growthStopped = false;
+  }
 
-    public void stopGrowth ()
-    {
-	growthStopped = true;
-	map.compact();
-    }
-
-    public void allowGrowth ()
-    {
-	growthStopped = false;
-    }
-
-    public boolean growthStopped ()
-    {
-	return growthStopped;
-    }
+  public boolean growthStopped ()
+  {
+    return growthStopped;
+  }
 
 
-    // Serialization 
-		
-    private static final long serialVersionUID = 1;
-    private static final int CURRENT_SERIAL_VERSION = 0;
+  // Serialization
 
-    private void writeObject (ObjectOutputStream out) throws IOException {
-	out.writeInt (CURRENT_SERIAL_VERSION);
-	out.writeInt (numEntries);
-	out.writeObject(map);
-	out.writeBoolean (growthStopped);
-    }
+  private static final long serialVersionUID = 1;
+  private static final int CURRENT_SERIAL_VERSION = 0;
 
-    private void readObject (ObjectInputStream in) throws IOException, ClassNotFoundException {
-	int version = in.readInt ();
-	numEntries = in.readInt();
-	map = (gnu.trove.TObjectIntHashMap)in.readObject();
-	growthStopped = in.readBoolean();
-    }
-	
+  private void writeObject (ObjectOutputStream out) throws IOException {
+    out.writeInt (CURRENT_SERIAL_VERSION);
+    out.writeInt (numEntries);
+    out.writeObject(map);
+    out.writeBoolean (growthStopped);
+  }
+
+  private void readObject (ObjectInputStream in) throws IOException, ClassNotFoundException {
+    int version = in.readInt ();
+    numEntries = in.readInt();
+    map = (gnu.trove.TObjectIntHashMap)in.readObject();
+    growthStopped = in.readBoolean();
+  }
+
 }

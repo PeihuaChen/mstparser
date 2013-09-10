@@ -5,7 +5,7 @@
 //
 // This software is licensed under the terms of the Common Public
 // License, Version 1.0 or (at your option) any subsequent version.
-// 
+//
 // The license is approved by the Open Source Initiative, and is
 // available from their website at http://www.opensource.org.
 ///////////////////////////////////////////////////////////////////////////////
@@ -30,18 +30,19 @@ import mstparser.Util;
  */
 public class MSTWriter extends DependencyWriter {
 
-    public MSTWriter (boolean labeled) {
-	this.labeled = labeled;
-    }
+  public MSTWriter (boolean labeled) {
+    this.labeled = labeled;
+  }
 
-    public void write(DependencyInstance instance) throws IOException {
-	writer.write(Util.join(instance.forms, '\t') + "\n");
-	writer.write(Util.join(instance.postags, '\t') + "\n");
-	if (labeled)
-	    writer.write(Util.join(instance.deprels, '\t') + "\n");
-	writer.write(Util.join(instance.heads, '\t') + "\n");
-	if (instance.confidenceScores != null)
-		writer.write(Util.join(instance.confidenceScores, '\t', 3) + "\n");
-	writer.write("\n");
-    }
+  @Override
+  public void write(DependencyInstance instance) throws IOException {
+    writer.write(Util.join(instance.forms, '\t') + "\n");
+    writer.write(Util.join(instance.postags, '\t') + "\n");
+    if (labeled)
+      writer.write(Util.join(instance.deprels, '\t') + "\n");
+    writer.write(Util.join(instance.heads, '\t') + "\n");
+    if (instance.confidenceScores != null)
+      writer.write(Util.join(instance.confidenceScores, '\t', 3) + "\n");
+    writer.write("\n");
+  }
 }

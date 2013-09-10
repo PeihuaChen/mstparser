@@ -5,7 +5,7 @@
 //
 // This software is licensed under the terms of the Common Public
 // License, Version 1.0 or (at your option) any subsequent version.
-// 
+//
 // The license is approved by the Open Source Initiative, and is
 // available from their website at http://www.opensource.org.
 ///////////////////////////////////////////////////////////////////////////////
@@ -32,34 +32,34 @@ import mstparser.DependencyInstance;
  */
 public abstract class DependencyWriter {
 
-    protected BufferedWriter writer;
-    protected boolean labeled = false;
+  protected BufferedWriter writer;
+  protected boolean labeled = false;
 
-    public static DependencyWriter createDependencyWriter (String format, boolean labeled) throws IOException {
-	if (format.equals("MST")) {
-	    return new MSTWriter(labeled);
-	} else if (format.equals("CONLL")) {
-	    return new CONLLWriter(labeled);
-	} else {
-	    System.out.println("!!!!!!!  Not a supported format: " + format);
-	    System.out.println("********* Assuming CONLL format. **********");
-	    return new CONLLWriter(labeled);
-	}
+  public static DependencyWriter createDependencyWriter (String format, boolean labeled) throws IOException {
+    if (format.equals("MST")) {
+      return new MSTWriter(labeled);
+    } else if (format.equals("CONLL")) {
+      return new CONLLWriter(labeled);
+    } else {
+      System.out.println("!!!!!!!  Not a supported format: " + format);
+      System.out.println("********* Assuming CONLL format. **********");
+      return new CONLLWriter(labeled);
     }
+  }
 
-    public void startWriting (String file) throws IOException {
-	writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file),"UTF8"));
-    }
+  public void startWriting (String file) throws IOException {
+    writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file),"UTF8"));
+  }
 
-    public void finishWriting () throws IOException {
-	writer.flush();
-	writer.close();
-    }
+  public void finishWriting () throws IOException {
+    writer.flush();
+    writer.close();
+  }
 
-    public boolean isLabeled() {
-	return labeled;
-    }
+  public boolean isLabeled() {
+    return labeled;
+  }
 
-    public abstract void write(DependencyInstance instance) throws IOException;
+  public abstract void write(DependencyInstance instance) throws IOException;
 
 }
