@@ -5,7 +5,7 @@
 //
 // This software is licensed under the terms of the Common Public
 // License, Version 1.0 or (at your option) any subsequent version.
-// 
+//
 // The license is approved by the Open Source Initiative, and is
 // available from their website at http://www.opensource.org.
 ///////////////////////////////////////////////////////////////////////////////
@@ -30,36 +30,37 @@ import mstparser.DependencyInstance;
  */
 public class CONLLWriter extends DependencyWriter {
 
-    public CONLLWriter (boolean labeled) {
-	this.labeled = labeled;
-    }
+  public CONLLWriter (boolean labeled) {
+    this.labeled = labeled;
+  }
 
-    public void write(DependencyInstance instance) throws IOException {
+  @Override
+  public void write(DependencyInstance instance) throws IOException {
     DecimalFormat df = null;
     if (instance.confidenceScores != null){
-		df = new DecimalFormat();
-		df.setMaximumFractionDigits(3);
-	}
-	for (int i=0; i<instance.length(); i++) {
-	    writer.write(Integer.toString(i+1));                writer.write('\t');
-	    writer.write(instance.forms[i]);                    writer.write('\t');
-	    writer.write(instance.forms[i]);                    writer.write('\t');
-	    //writer.write(instance.cpostags[i]);                 writer.write('\t');
-	    writer.write(instance.postags[i]);                  writer.write('\t');
-	    writer.write(instance.postags[i]);                  writer.write('\t');
-	    writer.write("-");                                  writer.write('\t');
-	    writer.write(Integer.toString(instance.heads[i]));  writer.write('\t');
-	    writer.write(instance.deprels[i]);                  writer.write('\t');
-	    writer.write("-\t-");
-	    if (instance.confidenceScores != null){
-	    	writer.write('\t');
-	    	writer.write(df.format(instance.confidenceScores[i]));
-	    }
-	    writer.newLine();
-	}
-	writer.newLine();
-
+      df = new DecimalFormat();
+      df.setMaximumFractionDigits(3);
     }
+    for (int i=0; i<instance.length(); i++) {
+      writer.write(Integer.toString(i+1));                writer.write('\t');
+      writer.write(instance.forms[i]);                    writer.write('\t');
+      writer.write(instance.forms[i]);                    writer.write('\t');
+      //writer.write(instance.cpostags[i]);                 writer.write('\t');
+      writer.write(instance.postags[i]);                  writer.write('\t');
+      writer.write(instance.postags[i]);                  writer.write('\t');
+      writer.write("-");                                  writer.write('\t');
+      writer.write(Integer.toString(instance.heads[i]));  writer.write('\t');
+      writer.write(instance.deprels[i]);                  writer.write('\t');
+      writer.write("-\t-");
+      if (instance.confidenceScores != null){
+        writer.write('\t');
+        writer.write(df.format(instance.confidenceScores[i]));
+      }
+      writer.newLine();
+    }
+    writer.newLine();
+
+  }
 
 
 }
