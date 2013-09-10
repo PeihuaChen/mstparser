@@ -14,9 +14,10 @@
 
 package mstparser;
 
-import java.util.ArrayList;
-import java.io.*;
-import java.util.Iterator;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 
 public class Alphabet implements Serializable
 {

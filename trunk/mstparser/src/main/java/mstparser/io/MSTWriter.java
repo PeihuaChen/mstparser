@@ -12,10 +12,10 @@
 
 package mstparser.io;
 
+import java.io.IOException;
+
 import mstparser.DependencyInstance;
 import mstparser.Util;
-
-import java.io.*;
 
 /**
  * A writer to create files in MST format.

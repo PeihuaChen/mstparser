@@ -12,12 +12,13 @@
 
 package mstparser.io;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
+
 import mstparser.DependencyInstance;
 import mstparser.RelationalFeature;
-import mstparser.Util;
-
-import java.io.*;
-import java.util.*;
 
 /**
  * A reader for files in CoNLL format.

@@ -1,7 +1,8 @@
 package mstparser;
 
-import java.io.*;
-import mstparser.io.*;
+import java.io.IOException;
+
+import mstparser.io.DependencyReader;
 
 public class DependencyEvaluator {
 	

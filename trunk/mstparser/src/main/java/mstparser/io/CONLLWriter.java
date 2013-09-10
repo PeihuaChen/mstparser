@@ -12,7 +12,7 @@
 
 package mstparser.io;
 
-import java.io.*;
+import java.io.IOException;
 import java.text.DecimalFormat;
 
 import mstparser.DependencyInstance;

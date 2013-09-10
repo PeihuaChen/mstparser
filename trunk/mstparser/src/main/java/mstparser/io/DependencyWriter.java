@@ -12,8 +12,12 @@
 
 package mstparser.io;
 
-import java.io.*;
-import mstparser.*;
+import java.io.BufferedWriter;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+
+import mstparser.DependencyInstance;
 
 /**
  * A class that defines common behavior and abstract methods for

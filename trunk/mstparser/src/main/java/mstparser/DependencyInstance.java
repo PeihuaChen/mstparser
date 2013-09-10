@@ -1,8 +1,10 @@
 package mstparser;
 
-import gnu.trove.*;
-import java.io.*;
-import java.util.*;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
+import java.util.Arrays;
 
 public class DependencyInstance implements Serializable {
 
